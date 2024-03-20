@@ -39,12 +39,11 @@ By separating the features from the target variable, the dataset is prepared for
 
 ![alt text](image.png)
 
-## Training Models Results 
-
+## Train Script
 A total of 4 different models (described below) were calibrated to check result robutsness 
 
-## Model Results 
-### Linear Rergession 
+## Models 
+### (1) Linear Rergession 
 - 47.41% Mean Cross-Validation Score (average accuracy of the model across different subsets of the training data). 
 - 48.12% Train Score (measures how well the model fits the training data) 
 - 45.28% Test Score (measures how well the model fits the test data) 
@@ -58,14 +57,14 @@ Overall, the model's performance is modest.
 
 Overall, the Lasso regression model's performance is similar to the linear regression model, explaining around 48.12% of the training data and 45.28% of the test data.
 
-# (3) Elastic Net Regresion
+### (3) Elastic Net Regresion
 - 45.98% Mean Cross-Validation Score (average accuracy of the model across different subsets of the training data). 
 - 46.23%. Train Score (measures how well the model fits the training data) 
 - 45.10% Test Score (measures how well the model fits the test data) 
 
 In summary, the Elastic Net Regression model exhibits similar performance on both the training and test data, with a slight drop in performance compared to the Linear Regression and Lasso Regression models.
 
-### Concluding Note
+### Remark
 Linear Regression, Lasso Regression, and Elastic Net Regression produce similar results in terms of Mean Cross-Validation Score, Train Score, and Test Score.
 
 The models exhibit moderate performance, with Test Scores ranging from approximately 0.45 to 0.46, indicating that they explain around 45% to 46% of the variance in the target variable.
@@ -74,6 +73,7 @@ Despite their similar performance, Lasso Regression and Elastic Net Regression p
 Linear Regression serves as a baseline, Lasso and Elastic Net Regression provide additional regularization techniques (both impose regularization, which can shrink the coefficients of less important features to zero) that can enhance model robustness and interpretability, especially in high-dimensional datasets with potentially correlated features.
 
  ###  (4) Random Forest 
+This is the model used for prediction  
 The Random Forest regression model seems to perform quite well:
 - 65.32% Mean Cross-Validation Score (average accuracy of the model across different subsets of the training data). 
 - 95.47% Train Score (measures how well the model fits the training data) 
