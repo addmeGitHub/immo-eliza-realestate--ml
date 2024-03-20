@@ -1,5 +1,5 @@
+![image](https://github.com/addmeGitHub/immo-eliza-ml/assets/157882773/4f482843-6ea7-4f82-a55a-69c9e8f20dcc)
 
-![Immo Code Machine Logo](/Users/ARahim/Documents/GitHub/immo-eliza-ml)
 
 # immo-eliza-ml Machine Learning Model 
 
