@@ -23,7 +23,7 @@ The following procedures have been followed to predict the house prices.
 
 2. Data visualization: The cleaned data is further used in Jupyter notebook to visualize and to identify correlations and the important features which have the most effect on determining the house prices.
 
-3. Model Selection: Here Linear regression machine learning method is used as a model from SKLearn library to predict house price.
+3. Model Selection: Different Regression models from the scikit-learn (SKLearn) library are utilized as the machine learning method to predict house prices. However, to enhance the model's performance and explore other methodologies, I transitioned to a Random Forest Regression model, which can potentially capture nonlinear relationships and interactions among features more effectively.
 
 ##  Features Used for Prediction
 The dataset is prepared for modeling by separating the features used for prediction from the target variable. This is a crucial step in machine learning model development.
