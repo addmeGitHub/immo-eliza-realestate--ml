@@ -1,0 +1,313 @@
+# save the clean CSV for deployment
+# there are types of models - there is no need to do normalization and scaling 
+# Which should proceed first: imputation or scaling? 
+Typically impute missing values and then scale the features, including the price.
+Scaling ensures that all features have similar scales, which can help algorithms converge faster during training and make them more robust.
+Ensure that you scale each feature independently and avoid mixing the scaling of the target variable (e.g., price) with the scaling of other features.
+# on scaling 
+scaling can lead to faster convergence during training and may improve the overall performance of the model, especially for algorithms sensitive to feature scales.
+
+# do I need to scale
+The need for scaling depends on the machine learning algorithm 
+linear regression or any other algorithm where feature scaling matters, scaling the price might be necessary.
+Scaling the price can help prevent features with larger magnitudes from dominating the learning proces.
+especially if the algorithm relies on distance measures or gradient-based optimization.
+However, for some algorithms like tree-based models (e.g., decision trees, random forests, gradient boosting), scaling the target variable (price) might not be necessary as these algorithms are not affected by the scale of the target variable.
+
+# Feature importance
+
+Notes: the environment is stored in this path
+/Users/ARahim/anaconda3/envs/myenv/lib/python3.11/site-packages 
+select this envrionment to run the codes
+
+# About the data from the repo 
+There are about 76 000 properties, roughly equally spread across houses and apartments
+Each property has a unique identifier id
+The target variable is price
+Variables prefixed with fl_ are dummy variables (1/0)
+Variables suffixed with _sqm indicate the measurement is in square meters
+All missing categories for the categorical variables are encoded as MISSING
+Steps: 
+(1) Split into apartment & house
+(2) split into train and test
+(3) drop if region, province and locality are missing 
+(4) Check price for outliers and remove outliers based on the IQ range & tolarence level 2
+(5) Scale the price (living area) and then impute the missing using KNN
+
+# Note encoding, scaling and imputation have to be done seperately for the test and train dataset
+(6) Encoding after splitting but don't use get dummies use (one hot encoding) (fit.code) 
+(7) Encode MISSING (-1)
+(8) use stepwise regression 
+
+# scaling the dataframe 
+Choose the scaling method based on your specific requirements and the characteristics of your dataset. Min-Max scaling is suitable when you need to bound the variable within a specific range, while standardization is more robust to outliers and can work well with algorithms that assume zero-centered data.
+
+# splitted the data into houses and apartments 
+Number of observations in df_apart: 36256
+Number of observations in df_house: 39255
+
+### splitting the data into training and testing 
+Training set shape for APARTMENT: (29004, 30)
+Testing set shape for APARTMENT: (7252, 30)
+Training set shape for HOUSE: (31404, 30)
+Testing set shape for HOUSE: (7851, 30)
+
+# Price Outliers
+check price outliers using IQ range and vary tolarence for different result. 
+
+# Steps to handle the missing
+for both train and test dataframes
+(1) drop if missing province, region, locaity (few cases in (train house)= 1 & in (train apart)= 2)
+(2) drop the column cadastral_income (apart 74% missing & house 46% missing both in train dataset)
+(2) drop the column construction_year (over 40% missing)
+
+# Next
+(4) Encode the data /encode missing as logical - write on this later
+
+# Next
+# Living_area_sqm missing imputations based on number of bedrooms (nbr_bedrooms)
+(5) use the bedrooms numbers to impute the missing living area (missing in bedroom is zero) (by bedroom numbers use median) --> check this
+
+# surface_land_sqm & garden_sqm 
+- drop surface land for apartment dataset 
+(6) impute the missing garden_sqm based on surface_land_sqm (missing is zero here) if there is a garden (fl_garden = 1) use the median --->>  (mean check this)
+
+# state_bulding missing 30 & 39 % missing
+(7) impute the building state missing by zipcode grouping, use the mode
+
+# Checking missing from the raw data                                                         
+# No of missing the train apartment dataset                                        
+Number and percentage of missing values in each column:
+                                Missing Count  Missing Percentage
+id                                          0            0.000000
+price                                       0            0.000000
+property_type                               0            0.000000
+subproperty_type                            0            0.000000
+region                                      2            0.006896
+province                                    2            0.006896
+locality                                    2            0.006896
+zip_code                                    0            0.000000
+latitude                                 4731           16.311543
+longitude                                4731           16.311543
+construction_year                       11951           41.204661
+total_area_sqm                           1823            6.285340
+surface_land_sqm                        29004          100.000000
+nbr_frontages                           14700           50.682664
+nbr_bedrooms                                0            0.000000
+equipped_kitchen                        12522           43.173355
+fl_furnished                                0            0.000000
+fl_open_fire                                0            0.000000
+fl_terrace                                  0            0.000000
+terrace_sqm                              3168           10.922631
+fl_garden                                   0            0.000000
+garden_sqm                                404            1.392911
+fl_swimming_pool                            0            0.000000
+fl_floodzone                                0            0.000000
+state_building                          11550           39.822094
+primary_energy_consumption_sqm          12750           43.959454
+epc                                     11837           40.811612
+heating_type                            14066           48.496759
+fl_double_glazing                           0            0.000000
+cadastral_income                        21528           74.224245
+# obs on which to drop: 
+# No of missing in the train house dataset
+Number and percentage of missing values in each column:
+                                Missing Count  Missing Percentage
+id                                          0            0.000000
+price                                       0            0.000000
+property_type                               0            0.000000
+subproperty_type                            0            0.000000
+region                                      1            0.003184
+province                                    1            0.003184
+locality                                    1            0.003184
+zip_code                                    0            0.000000
+latitude                                 6567           20.911349
+longitude                                6567           20.911349
+construction_year                       14706           46.828429
+total_area_sqm                           4264           13.577888
+surface_land_sqm                            0            0.000000
+nbr_frontages                            6403           20.389122
+nbr_bedrooms                                0            0.000000
+equipped_kitchen                        13924           44.338301
+fl_furnished                                0            0.000000
+fl_open_fire                                0            0.000000
+fl_terrace                                  0            0.000000
+terrace_sqm                              7380           23.500191
+fl_garden                                   0            0.000000
+garden_sqm                               1920            6.113871
+fl_swimming_pool                            0            0.000000
+fl_floodzone                                0            0.000000
+state_building                           9703           30.897338
+primary_energy_consumption_sqm           8522           27.136670
+epc                                      7364           23.449242
+heating_type                            11135           35.457267
+fl_double_glazing                           0            0.000000
+cadastral_income                        14489           46.137435
+
+R-Squared and Adjusted R-Saquared https://www.analyticsvidhya.com/blog/2020/07/difference-between-r-squared-and-adjusted-r-squared/ 
+
+# Train house details of outliers greater than 10 million:
+ID: 19269000
+Price: 15000000.0
+Property Type: HOUSE
+Subproperty Type: HOUSE
+Region: Wallonia
+Province: Hainaut
+Locality: Mons
+Total Area (sqm): 10000.0
+Number of Bedrooms: 70.0
+Cadastral Income: nan
+Primary Energy Consumption (sqm): nan
+
+ID: 13965000
+Price: 22500000.0
+Property Type: HOUSE
+Subproperty Type: MIXED_USE_BUILDING
+Region: Brussels-Capital
+Province: Brussels
+Locality: Brussels
+Total Area (sqm): nan
+Number of Bedrooms: 0.0
+Cadastral Income: nan
+Primary Energy Consumption (sqm): nan
+
+ID: 13965000
+Price: 340000.0
+Property Type: HOUSE
+Subproperty Type: HOUSE
+Region: Wallonia
+Province: Luxembourg
+Locality: Virton
+Total Area (sqm): nan
+Number of Bedrooms: 3.0
+Cadastral Income: nan
+Primary Energy Consumption (sqm): nan
+
+ID: 42624000
+Price: 11450000.0
+Property Type: HOUSE
+Subproperty Type: VILLA
+Region: Flanders
+Province: West Flanders
+Locality: Brugge
+Total Area (sqm): nan
+Number of Bedrooms: 5.0
+Cadastral Income: 3609.0
+Primary Energy Consumption (sqm): nan
+
+ID: 79374000
+Price: 15000000.0
+Property Type: HOUSE
+Subproperty Type: APARTMENT_BLOCK
+Region: Wallonia
+Province: Hainaut
+Locality: Mons
+Total Area (sqm): 8797.0
+Number of Bedrooms: 0.0
+Cadastral Income: nan
+Primary Energy Consumption (sqm): nan
+
+ID: 78037000
+Price: 11450000.0
+Property Type: HOUSE
+Subproperty Type: HOUSE
+Region: Flanders
+Province: West Flanders
+Locality: Brugge
+Total Area (sqm): 790.0
+Number of Bedrooms: 5.0
+Cadastral Income: 3609.0
+Primary Energy Consumption (sqm): 0.0
+
+# Outliers for the test_house
+ID: 28207000
+Price: 11450000.0
+Property Type: HOUSE
+Subproperty Type: VILLA
+Region: Flanders
+Province: West Flanders
+Locality: Brugge
+Total Area (sqm): 790.0
+Number of Bedrooms: 5.0
+Cadastral Income: nan
+Primary Energy Consumption (sqm): 0.0
+
+# Apartments outlier in the train dataframe with price > 6 million 
+ID: 76910000
+Price: 305000.0
+Property Type: APARTMENT
+Subproperty Type: APARTMENT
+Region: Flanders
+Province: Flemish Brabant
+Locality: Halle-Vilvoorde
+Total Area (sqm): 117.0
+Number of Bedrooms: 2.0
+Cadastral Income: 1.0
+Primary Energy Consumption (sqm): nan
+
+ID: 39639000
+Price: 9999999.0
+Property Type: APARTMENT
+Subproperty Type: APARTMENT
+Region: Flanders
+Province: East Flanders
+Locality: Gent
+Total Area (sqm): nan
+Number of Bedrooms: 2.0
+Cadastral Income: nan
+Primary Energy Consumption (sqm): 81.0
+
+ID: 76910000
+Price: 8100000.0
+Property Type: APARTMENT
+Subproperty Type: DUPLEX
+Region: Flanders
+Province: West Flanders
+Locality: Brugge
+Total Area (sqm): 427.0
+Number of Bedrooms: 3.0
+Cadastral Income: nan
+Primary Energy Consumption (sqm): nan
+
+ID: 78225000
+Price: 10400000.0
+Property Type: APARTMENT
+Subproperty Type: APARTMENT
+Region: Wallonia
+Province: Liège
+Locality: Verviers
+Total Area (sqm): nan
+Number of Bedrooms: 0.0
+Cadastral Income: nan
+Primary Energy Consumption (sqm): nan
+
+
+# Model using only the House Data 
+# (1) Linear Regression full model 
+
+Mean Cross-Validation Score: This is the average accuracy of the model across different subsets of the training data. Here, it's about 47.41%.
+
+Train Score: This measures how well the model fits the training data, about 48.12%.
+
+Test Score: This evaluates the model's performance on new, unseen data. It's about 45.28%.
+
+Overall, the model's performance is modest, explaining around 48.12% of the training data and 45.28% of the test data.
+
+# (2) Lasso Rergession 
+Mean Cross-Validation Score: 0.47397198772830745
+Train Score: 0.4811566727263886
+Test Score: 0.4528128145024093
+
+# (3) Elastic Net
+Mean Cross-Validation Score: 0.4597667814563707
+Train Score: 0.46231019690889374
+Test Score: 0.45102605022056985
+
+ # (4) Random Forest 
+
+The Random Forest regression model seems to perform quite well:
+
+Mean Cross-Validation Score: 0.6531870296534088
+Train Score: 0.9546695248983852
+Test Score: 0.565259373964009
+The high training score compared to the test score indicates that the model may be overfitting slightly to the training data. However, overall, it appears to generalize reasonably well to unseen data.
